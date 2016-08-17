@@ -3,7 +3,7 @@
 Array.prototype.slice.call(document.querySelector('#projects').children).forEach(function (project) {
     project.addEventListener('click', function () {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/posts/' + project.textContent + '.md?_=' + new Date().getTime());
+        xhr.open('GET', window.location.pathname + 'posts/' + project.textContent + '.md?_=' + new Date().getTime());
         xhr.onload = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 console.log(xhr.responseText);
