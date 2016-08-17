@@ -13,19 +13,19 @@
         </div>
         <div id="post"></div>
         <div id="comments-container">
+            <h3>Comments</h3>
+            <div id="comment-list"></div>
             <h3>Submit a comment</h3>
             <div id="submit-comment">
                 <form action="https://getsimpleform.com/messages?form_api_token=abf8d873cab0d49d78171c4336d0f19c" method="post">
-                    <label>Name: <input type="text" name="name"></label>
+                    <label>Name: <br><input type="text" name="name"></label>
                     <br><br>
-                    <label>Comment: <textarea name="comment"></textarea></label>
+                    <label>Comment: <br><textarea name="comment"></textarea></label>
                     <input type="hidden" name="postname" id="postname">
                     <br><br>
                     <input type="submit" value="Submit">
                 </form>
             </div>
-            <h3>Comments</h3>
-            <div id="comment-list"></div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
         <script src="main.js"></script>
