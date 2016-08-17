@@ -10,8 +10,11 @@ body {
     }
 }
 
-#projects {
-    margin: auto;
+a {
+    text-decoration: none;
+}
+
+#projects, a {
     color: blue;
 }
 
