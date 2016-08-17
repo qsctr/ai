@@ -8,8 +8,8 @@ Array.prototype.slice.call(document.querySelector('#projects').children).forEach
         xhr.open('GET', window.location.pathname + 'posts/' + project.textContent + '.md?_=' + new Date().getTime());
         xhr.onload = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                console.log(xhr.responseText);
                 document.querySelector('#post').innerHTML = marked(xhr.responseText);
+                hljs.initHighlighting();
                 loadComments(project.textContent);
             }
         };
@@ -28,7 +28,6 @@ function loadComments(postname) {
     xhr.open('GET', 'https://getsimpleform.com/messages.json?api_token=a4e4a9772e551c53fdde1752d2fb54ce');
     xhr.onload = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            console.log(xhr.responseText);
             JSON.parse(xhr.responseText).reverse().forEach(function (comment) {
                 if (comment.data.postname === postname) {
                     var nameEl = document.createElement("p");
@@ -39,6 +38,7 @@ function loadComments(postname) {
                     commentList.appendChild(commentEl);
                 }
             });
+            hljs.initHighlighting();
         }
     };
     xhr.onerror = function () {
