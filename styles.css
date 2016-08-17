@@ -1,10 +1,26 @@
 body {
     font-family: Arial;
     font-size: 20px;
-    margin: 32px;
+    margin-top: 32px;
+    margin-bottom: 32px;
+    margin-left: 20vw;
+    margin-right: 20vw;
 }
 
 #projects {
     margin: auto;
     color: blue;
+}
+
+#comments-container {
+    display: none;
+}
+
+input, textarea {
+    font-size: 20px;
+}
+
+textarea {
+    width: 500px;
+    height: 300px;
 }
