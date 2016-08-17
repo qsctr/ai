@@ -1,0 +1,10 @@
+body {
+    font-family: Arial;
+    font-size: 20px;
+    margin: 32px;
+}
+
+#projects {
+    margin: auto;
+    color: blue;
+}
