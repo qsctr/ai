@@ -20,6 +20,7 @@ a {
 
 #comments-container {
     display: none;
+    margin-bottom: 128px;
 }
 
 input, textarea {

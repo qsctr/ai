@@ -9,7 +9,6 @@ Array.prototype.slice.call(document.querySelector('#projects').children).forEach
         xhr.onload = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 document.querySelector('#post').innerHTML = marked(xhr.responseText);
-                hljs.initHighlighting();
                 loadComments(project.textContent);
             }
         };
@@ -28,17 +27,22 @@ function loadComments(postname) {
     xhr.open('GET', 'https://getsimpleform.com/messages.json?api_token=a4e4a9772e551c53fdde1752d2fb54ce');
     xhr.onload = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            JSON.parse(xhr.responseText).reverse().forEach(function (comment) {
+            var comments = JSON.parse(xhr.responseText);
+            comments.sort(function (a, b) {
+                return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+            });
+            comments.forEach(function (comment) {
+                console.log(comment.created_at);
                 if (comment.data.postname === postname) {
-                    var nameEl = document.createElement("p");
+                    var nameEl = document.createElement('p');
                     nameEl.textContent = comment.data.name + ' at ' + new Date(comment.created_at) + ':';
                     commentList.appendChild(nameEl);
-                    var commentEl = document.createElement("div");
+                    var commentEl = document.createElement('div');
                     commentEl.innerHTML = marked(comment.data.comment);
                     commentList.appendChild(commentEl);
+                    commentList.appendChild(document.createElement('br'));
                 }
             });
-            hljs.initHighlighting();
         }
     };
     xhr.onerror = function () {
@@ -46,3 +50,14 @@ function loadComments(postname) {
     }
     xhr.send(null);
 }
+
+marked.setOptions({
+    highlight: function (code, lang) {
+        setTimeout(function () {
+            Array.prototype.slice.call(document.querySelectorAll('code')).forEach(function (elem) {
+                elem.className += ' hljs';
+            });
+        }, 100);
+        return hljs.highlight(lang, code).value;
+    }
+})
