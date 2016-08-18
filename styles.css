@@ -36,3 +36,7 @@ textarea {
     padding-top: 32px;
     padding-bottom: 32px;
 }
+
+.comment {
+    margin-bottom: 64px;
+}

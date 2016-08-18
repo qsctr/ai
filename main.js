@@ -1,5 +1,6 @@
 'use strict';
 
+var post = document.querySelector('#post');
 var commentList = document.querySelector('#comment-list');
 
 Array.prototype.slice.call(document.querySelector('#projects').children).forEach(function (project) {
@@ -8,12 +9,12 @@ Array.prototype.slice.call(document.querySelector('#projects').children).forEach
         xhr.open('GET', window.location.pathname + 'posts/' + project.textContent + '.md?_=' + new Date().getTime());
         xhr.onload = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                document.querySelector('#post').innerHTML = marked(xhr.responseText);
+                post.innerHTML = marked(xhr.responseText);
                 loadComments(project.textContent);
             }
         };
         xhr.onerror = function () {
-            document.querySelector('#post').innerHTML = 'Could not load post (' + xhr.statusText + ')';
+            post.innerHTML = 'Could not load post (' + xhr.statusText + ')';
         };
         xhr.send(null);
     });
@@ -39,8 +40,8 @@ function loadComments(postname) {
                     commentList.appendChild(nameEl);
                     var commentEl = document.createElement('div');
                     commentEl.innerHTML = marked(comment.data.comment);
+                    commentEl.className = 'comment';
                     commentList.appendChild(commentEl);
-                    commentList.appendChild(document.createElement('br'));
                 }
             });
         }
