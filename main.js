@@ -55,8 +55,10 @@ function loadComments(postname) {
 marked.setOptions({
     highlight: function (code, lang) {
         setTimeout(function () {
-            Array.prototype.slice.call(document.querySelectorAll('code')).forEach(function (elem) {
-                elem.className += ' hljs';
+            Array.prototype.slice.call(document.querySelectorAll('pre > code')).forEach(function (elem) {
+                if (elem.className.indexOf('lang-') > -1 && elem.className.indexOf('hljs') === -1) {
+                    elem.className += ' hljs';
+                }
             });
         }, 100);
         return hljs.highlight(lang, code).value;
