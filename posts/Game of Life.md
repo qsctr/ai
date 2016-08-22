@@ -96,3 +96,17 @@ The single function handles all of the features that respond to input such as ad
 So, that is pretty much the whole program. I think this graphics library is quite easy to use, so I will probably use it in the future if I am doing graphics with Haskell again. I enjoyed writing this program in Haskell, since it makes me think differently than when I am writing Java. Besides learning things about programming and graphics, I also learned that playing the Game of Life is very fun and I will probably play it in the future when I am bored. I am surprised at how the cells can seem to have complicated patterns while following very simple rules.
 
 You can download the program on the GitHub Releases page: https://github.com/qsctr/game-of-life/releases
+
+8/22/2016: (actually it's 8/23 at 12:05 am)
+
+I changed `cells` from a linked list to a `Set`. Set is a data type which is ordered and cannot have duplicates. The program can now run way faster without lagging.
+
+```haskell
+data World = World { cells :: Set (Int, Int), playing :: Bool, viewPort :: ViewPort }
+```
+
+You can see the exact things that I changed in the commit diff.
+
+https://github.com/qsctr/game-of-life/commit/995356ce07d57f712cf79d8563f498391f05c9d3
+
+You can download the (way faster) program on the GitHub Releases page: https://github.com/qsctr/game-of-life/releases
