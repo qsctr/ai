@@ -13,6 +13,10 @@ h2 {
     font-weight: 300;
 }
 
+code {
+    font-family: 'Roboto Mono', 'Consolas', monospace;
+}
+
 @media (max-width: 600px) {
     body {
         margin: 32px;
