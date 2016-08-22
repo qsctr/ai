@@ -33,7 +33,8 @@ a {
 }
 
 #projects, a {
-    color: blue;
+    color: white;
+    cursor: pointer;
 }
 
 #comments-container {
