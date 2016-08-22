@@ -4,7 +4,7 @@ See the source code on GitHub: https://github.com/qsctr/wireworld
 
 Wikipedia article on Wireworld: https://en.wikipedia.org/wiki/Wireworld
 
-8/21/2016:
+## 8/21/2016:
 
 Since Wireworld is very similar to the Game of Life, to begin with I copied the Game of Life code and changed everywhere where it said "Game of Life" to "Wireworld".
 

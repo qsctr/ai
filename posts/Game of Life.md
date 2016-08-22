@@ -2,13 +2,13 @@
 
 See the source code on GitHub: https://github.com/qsctr/game-of-life
 
-8/17/2016:
+## 8/17/2016:
 
 I decided to make the Conway's Game of Life simulation using the Haskell programming language. Haskell is a purely functional programming langauge. For graphics I used a Haskell library called Gloss.
 
 I had never used external Haskell libraries before, so I spend the first few days trying to figure out how to set everything up. In the end I found out I had to use a tool called stack to manage dependencies and build my project.
 
-8/19/2016:
+## 8/19/2016:
 
 I finished the project today. The game has the following features:
 
@@ -97,7 +97,7 @@ So, that is pretty much the whole program. I think this graphics library is quit
 
 You can download the program on the GitHub Releases page: https://github.com/qsctr/game-of-life/releases
 
-8/22/2016: (actually it's 8/23 at 12:05 am)
+## 8/22/2016: (actually it's 8/23 at 12:05 am)
 
 I changed `cells` from a linked list to a `Set`. Set is a data type which is ordered and cannot have duplicates. The program can now run way faster without lagging.
 
