@@ -22,4 +22,4 @@ vehicle = scale 2 2 $ pictures
 
 The result looks like this.
 
-![A two wheeled vehicle](https://github.com/qsctr/ai/blob/gh-pages/images/vehicle.png?raw=true)
+![A two wheeled vehicle](images/vehicle.png)
