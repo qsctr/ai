@@ -7,3 +7,5 @@ https://qsctr.github.io/ai
 [Game of Life](https://github.com/qsctr/game-of-life)
 
 [Wireworld](https://github.com/qsctr/wireworld)
+
+[Braitenberg's Vehicles](https://github.com/qsctr/vehicles)
