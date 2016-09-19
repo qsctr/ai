@@ -19,7 +19,7 @@ h2 {
 }
 
 code {
-    font-family: 'Roboto Mono', 'Consolas', monospace;
+    font-family: 'Consolas', monospace;
 }
 
 @media (max-width: 600px) {
