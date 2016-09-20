@@ -29,7 +29,7 @@ code {
 }
 
 a {
-    text-decoration: none;
+    text-decoration: underline;
 }
 
 #projects, a {
