@@ -2,7 +2,7 @@
 
 See the source code on GitHub: https://github.com/qsctr/vacuum-world
 
-# 9/29/2016:
+## 9/29/2016:
 
 In Vacuum world there are two connected rooms. Each one can either have dirt in it or not, and there is a vacuum cleaner in one room.
 
