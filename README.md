@@ -11,3 +11,5 @@ https://qsctr.github.io/ai
 [Braitenberg's Vehicles](https://github.com/qsctr/vehicles)
 
 [GridWorld](https://github.com/qsctr/gridworld)
+
+[Vacuum world](https://github.com/qsctr/vacuum-world)
