@@ -61,6 +61,9 @@ marked.setOptions({
                 }
             });
         }, 100);
+        if (lang === undefined) {
+            return code;
+        }
         return hljs.highlight(lang, code).value;
     }
 })
