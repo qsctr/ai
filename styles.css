@@ -67,3 +67,7 @@ pre code {
 img {
     max-width: 100%;
 }
+
+code {
+    color: greenyellow;
+}
