@@ -13,3 +13,7 @@ https://qsctr.github.io/ai
 [GridWorld](https://github.com/qsctr/gridworld)
 
 [Vacuum world](https://github.com/qsctr/vacuum-world)
+
+[Guessing game](https://github.com/qsctr/guessing-game)
+
+[Missionaries and cannibals](https://github.com/qsctr/missionaries-and-cannibals)
