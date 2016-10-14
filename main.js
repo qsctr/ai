@@ -11,6 +11,8 @@ Array.prototype.slice.call(document.querySelector('#projects').children).forEach
             if (xhr.readyState === 4 && xhr.status === 200) {
                 post.innerHTML = marked(xhr.responseText);
                 loadComments(project.textContent);
+                location.hash = '';
+                location.hash = '#post';
             }
         };
         xhr.onerror = function () {
