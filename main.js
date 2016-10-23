@@ -64,7 +64,8 @@ marked.setOptions({
             });
         }, 100);
         if (lang === undefined) {
-            return code;
+            // return code;
+            return hljs.highlightAuto(code).value;
         }
         return hljs.highlight(lang, code).value;
     }
