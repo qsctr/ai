@@ -2,7 +2,7 @@
 
 See the source code on GitHub: https://github.com/qsctr/searches
 
-Use the program: https://qsctr.github.io/searches
+Use the program: https://qsctr.github.io/searches (It is recommended to use the latest version of Chrome)
 
 ## 10/23/2016:
 
