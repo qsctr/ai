@@ -1,6 +1,7 @@
 # Uninformed search
 
 See the source code on GitHub: https://github.com/qsctr/searches
+
 Use the program: https://qsctr.github.io/searches
 
 ## 10/23/2016:
