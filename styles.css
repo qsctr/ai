@@ -60,8 +60,9 @@ textarea {
     margin-bottom: 32px;
 }
 
-pre code {
+pre > code {
     border-radius: 5px;
+    padding: 10px;
 }
 
 img {
