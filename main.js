@@ -58,7 +58,7 @@ marked.setOptions({
     highlight: function (code, lang) {
         setTimeout(function () {
             Array.prototype.slice.call(document.querySelectorAll('pre > code')).forEach(function (elem) {
-                if (elem.className.indexOf('lang-') > -1 && elem.className.indexOf('hljs') === -1) {
+                if (elem.className.indexOf('hljs') === -1) {
                     elem.className += ' hljs';
                 }
             });
