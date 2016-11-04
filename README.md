@@ -17,3 +17,7 @@ https://qsctr.github.io/ai
 [Guessing game](https://github.com/qsctr/guessing-game)
 
 [Missionaries and cannibals](https://github.com/qsctr/missionaries-and-cannibals)
+
+[Uninformed search](https://github.com/qsctr/searches)
+
+[Informed search](https://github.com/qsctr/navigate)
