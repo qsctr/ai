@@ -63,6 +63,8 @@ textarea {
 pre > code {
     /*border-radius: 5px;*/
     padding: 16px;
+    margin-left: -128px;
+    margin-right: -128px;
 }
 
 img {
