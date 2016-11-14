@@ -8,7 +8,7 @@ There can also be obstacles in the grid, and the search algorithm has to find a 
 
 In my program, the grid is infinite, so if the goal is completely surrounded by obstacles, the search will never end (unless the starting node is also surrounded by obstacles).
 
-I liked this project because it let me apply the different pathfinding algorithms that I learned to a grid, so I could compare their performance more clearly than with a fixed set of data. Also, I reused a lot of code from the previous GridWorld project.
+I liked this project because it let me apply the different pathfinding algorithms that I learned to a grid, so I could compare their performance more clearly than with a fixed set of data. I also learned how to implement the algorithms in a functional language like Haskell, since the previous implementation I did (see "Informed search") was in TypeScript and it was imperative.
 
 ```javascript
 // TODO: Add code
