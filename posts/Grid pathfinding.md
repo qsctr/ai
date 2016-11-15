@@ -4,7 +4,7 @@
 
 The grid pathfinding project is when pathfinding algorithms such as uniform cost search, greedy search, and A* are applied to nodes in a grid. I did both square and hexagon grids. In a square grid, each square is connected to the 8 squares around it. In a hexagon grid, each hexagon is connected to the 6 hexagons around it.
 
-There can also be obstacles in the grid, and the search algorithm has to find a path around the obstacles. With not very optimal searches such as greedy search, the obstacles can end up making the path longer.
+There can also be obstacles in the grid, and the search algorithm has to find a path around the obstacles. With not very optimal searches such as greedy search, the obstacles can end up making the path much longer than the path found with uniform cost search.
 
 In my program, the grid is infinite, so if the goal is completely surrounded by obstacles, the search will never end (unless the starting node is also surrounded by obstacles).
 
