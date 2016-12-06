@@ -1,5 +1,7 @@
 # Semester 1 final project
 
+My project is a program which checks JavaScript programs for errors and optimizes them.
+
 ## 11/22/2016
 
 Today I found a library for parsing JavaScript into an abstract syntax tree. I also wrote a very basic function to remove empty statements in the syntax tree.
