@@ -21,3 +21,7 @@ https://qsctr.github.io/ai
 [Uninformed search](https://github.com/qsctr/searches)
 
 [Informed search](https://github.com/qsctr/navigate)
+
+[Grid pathfinding](https://github.com/qsctr/grid-pathfinding)
+
+[Semester 1 final project](https://github.com/qsctr/javascript-optimizer)
