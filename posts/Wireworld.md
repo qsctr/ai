@@ -69,5 +69,3 @@ handleInput (EventKey (MouseButton button) Down _ coords) world@World {..}
 I also changed the background to be black instead of white.
 
 That is all of the changes. Most of the code is still the same as Game of Life. It has the same functionality, so the grid is infinite, the viewport is zoomable and movable, etc.
-
-You can download the program on the GitHub Releases page: https://github.com/qsctr/wireworld/releases

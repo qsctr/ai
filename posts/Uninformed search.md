@@ -8,11 +8,9 @@ Use the program: https://qsctr.github.io/searches (It is recommended to use the 
 
 Today I finished the uninformed searches project. I did it in TypeScript. TypeScript is a typed superset of JavaScript which compiles to JavaScript. I also wrote a web app in HTML, CSS, and TypeScript to test the searches.
 
-I wrote 4 types of searches: breadth-first, depth-first, depth-limited, and iterative-deepening. For each type I wrote a recursive and non-recursive version, except for depth-limited. Here is the code for all of the searches. There is also a function to create a graph from a JavaScript object (which can be written using JSON, aka JavaScript Object Notation).
+I wrote 4 types of searches: breadth-first, depth-first, depth-limited, and iterative-deepening. For each type I wrote a recursive and non-recursive version, except for depth-limited. Here is the code for all of the searches. There is also a function to create a graph from a JavaScript object.
 
 ```typescript
-// Some searches for graphs
-
 'use strict';
 
 interface GraphNode {

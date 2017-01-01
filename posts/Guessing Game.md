@@ -92,4 +92,4 @@ play (Leaf l) = yesOrNo ("Is it " ++ l) (return (Leaf l)) $ do
   return (Branch newBranch (Leaf l) (Leaf newLeaf))
 ```
 
-That is my whole program. I liked this project because of two reasons. First, I got to use trees in Haskell which was very fun. Second, we don't have to use graphics anymore.
+That is my whole program. I liked this project because of two reasons. First, I got to use trees in Haskell which was very fun, and it is much more concise than the same thing in other languages like Java. Second, we don't have to use graphics anymore.

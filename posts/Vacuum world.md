@@ -54,6 +54,4 @@ update state@State {..}
 
 This function is very straightforward. It creates 3 values depending on the state, `sense`, `decide`, and `act`. `sense` is a `Bool` representing whether there is dirt in same room as the vacuum. `decide` is an `Action` which depends on the result of `sense` and the current state. `act` is a new `State` which is based off the old state and depends on the result of `decide`. And finally the function returns the state of `act` but with the `cost` increased by 1 and the `action` changed to the new action from `decide`. Actually the only purpose of the `cost` and `action` fields is to display the information to the user, since the state is printed out every time it is updated. For displaying information I am actually just printing the `State` data structure directly.
 
-This is only part of the program so make sure to see the full program on [GitHub](https://github.com/qsctr/vacuum-world/blob/master/src/Main.hs).
-
 I liked doing this project. Some future improvements I could make are to let the vacuum clean more than two rooms, arranged in different ways, or to make integer amounts of dirt rather than just a boolean amount.

@@ -2,6 +2,8 @@
 
 See the source code on GitHub: https://github.com/qsctr/vehicles
 
+Wikipedia article on Braitenberg Vehicles: https://en.wikipedia.org/wiki/Braitenberg_vehicle
+
 ## 8/26/2016:
 
 Today I made a picture of a vehicle with two wheels.
@@ -337,6 +339,4 @@ I actually added support for adding multiple sources last night, like a source i
 
 Some future improvements I could make are to add support for multiple sources, and add vehicle 4a and 4b.
 
-I will upload the program later because I don't have time now.
-
-Braitenberg vehicles are very interesting. I like how they move differently according to different rules. They remind me of the electric field hockey ~~game~~ simulation we ~~played~~ used in physics class last year. I want to read Braitenberg's complete book one day.
+Braitenberg vehicles are very interesting. I like how they move differently according to different rules. I want to read Braitenberg's complete book one day.

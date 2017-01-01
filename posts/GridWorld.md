@@ -4,8 +4,6 @@ See the source code on GitHub: https://github.com/qsctr/gridworld
 
 ## 9/19/2016:
 
-I finished the GridWorld project.
-
 GridWorld is a simulation where there are walls and agents in a grid. Each agent follows the walls according to certain rules, so they are simple reflex agents. There can also be treasures in the world, and an agent will stop at a treasure if it finds one. I did my project using Haskell and the Gloss graphics library.
 
 Here are the rules for GridWorld. At each step, each agent senses the eight blocks surrounding it in the grid, and whether they are occupied by walls or not. From those eight values, it then determines a "feature vector", which in this case happens to only have four values. It is determined by going clockwise around the surrounding squares starting from the top one, and combining every two squares into one. The way that they are combined is using the or operation, in other words, if either one is occupied, the feature vector treats both blocks as occupied. Then, the agent decides on its next move based on the feature vector. You can see how it decides in the code below.
