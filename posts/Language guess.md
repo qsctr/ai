@@ -2,7 +2,7 @@
 
 See the source code on GitHub: https://github.com/qsctr/language-guess
 
-# 1/6/2017
+## 1/6/2017
 
 This semester (or at least this quarter) we are required to use Python for our projects. This project is quite simple and is meant to get us familiar with Python.
 
