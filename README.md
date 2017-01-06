@@ -25,3 +25,5 @@ https://qsctr.github.io/ai
 [Grid pathfinding](https://github.com/qsctr/grid-pathfinding)
 
 [Semester 1 final project](https://github.com/qsctr/javascript-optimizer)
+
+[Language guess](https://github.com/qsctr/language-guess)
