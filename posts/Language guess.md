@@ -135,7 +135,7 @@ Pass each small list in the big list as an argument to the `zip` function, which
 
 Assign the first element of the first tuple of the list to `_`, because it is not needed (it is the string `'Letter'`).
 
-Collect the rest of the first tuple into a list and assign it to `letters`. `letters` is now a list of the letters in the table (`['a', `'b'`, ... 'ž']`).
+Collect the rest of the first tuple into a list and assign it to `letters`. `letters` is now a list of the letters in the table (`['a', 'b', ... 'ž']`).
 
 Assign the rest of the list to `rows`. `rows` is now a list of tuples of the columns in the original table, except the first column (`[['English', '8.167', '1.492', ... '0'], ... ['Czech', '8.421', 0.822', ... '0.721']]`). It is called `rows` because the table was transposed.
 
