@@ -178,6 +178,9 @@ Return the key.
 Similarity measures are functions that measure how similar two things are. There are many different types of similarity measures.
 
 ```python
+from math import sqrt
+from operator import mul
+
 def manhattan_distance(xs, ys):
     return sum(map(lambda x, y: abs(x - y), xs, ys))
 
@@ -188,7 +191,11 @@ def chebyshev_distance(xs, ys):
     return max(map(lambda x, y: abs(x - y), xs, ys))
 
 def cosine_similarity(xs, ys):
-    return 1 - sum(map(mul, xs, ys)) / (sqrt(sum(map(mul, xs, xs))) * sqrt(sum(map(mul, ys, ys))))
+    return 1 - dot_product(xs, ys) / (sqrt(dot_product(xs, xs))) * sqrt(dot_product(ys, ys)))
+    def dot_product(xs1, ys1):
+        return sum(map(mul, xs1, ys1))
 ```
 
-TODO: finish this
+I tried different similarity measures for this project. Similarity measures are used when comparing the frequencies of letters in the text to analyze with the known average frequencies of a certain language, to see how close the text is to that language. Previously, in the code with the explanation above, I was using the manhattan distance.
+
+I only did some limited testing manually, so it is hard to determine which one(s) are more accurate. From my testing it seemed like manhattan distance and euclidean distance were more accurate than the others, but I cannot be sure of it because I have not done extensive testing. If I had more time I would have written some automated tests to test the similarity measures with more data and get a more reliable result.
