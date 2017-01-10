@@ -172,3 +172,23 @@ Line 7:
 Find the key in `diffs` with the smallest corresponding value.
 
 Return the key.
+
+## 1/10/2017
+
+Similarity measures are functions that measure how similar two things are. There are many different types of similarity measures.
+
+```python
+def manhattan_distance(xs, ys):
+    return sum(map(lambda x, y: abs(x - y), xs, ys))
+
+def euclidean_distance(xs, ys):
+    return sqrt(sum(map(lambda x, y: (x - y) ** 2, xs, ys)))
+
+def chebyshev_distance(xs, ys):
+    return max(map(lambda x, y: abs(x - y), xs, ys))
+
+def cosine_similarity(xs, ys):
+    return 1 - sum(map(mul, xs, ys)) / (sqrt(sum(map(mul, xs, xs))) * sqrt(sum(map(mul, ys, ys))))
+```
+
+TODO: finish this
