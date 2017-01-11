@@ -191,7 +191,7 @@ def chebyshev_distance(xs, ys):
     return max(map(lambda x, y: abs(x - y), xs, ys))
 
 def cosine_similarity(xs, ys):
-    return 1 - dot_product(xs, ys) / (sqrt(dot_product(xs, xs))) * sqrt(dot_product(ys, ys)))
+    return 1 - dot_product(xs, ys) / (sqrt(dot_product(xs, xs)) * sqrt(dot_product(ys, ys)))
     def dot_product(xs1, ys1):
         return sum(map(mul, xs1, ys1))
 ```
