@@ -34,6 +34,7 @@ I also made vectors themselves an iterable, because it would be nice to be able 
 
 ```python
     # still in class Vector
+
     def __iter__(self):
         return iter(self.coordinates)
 ```
@@ -42,6 +43,7 @@ I thought it would be useful to use the math operators for dealing with vectors,
 
 ```python
     # still in class Vector
+
     def __add__(self, other):
         return Vector(map(add, self, other if hasattr(other, '__iter__') else (other, other)))
 ```
@@ -50,12 +52,14 @@ But then I realized that the code would be very repetitive for the other operati
 
 ```python
 # outside of class Vector
+
 def apply(op):
     return lambda self, a: Vector(map(op, self, a if hasattr(a, '__iter__') else (a, a)))
 ```
 
 ```python
     # inside class Vector
+
     __add__ = apply(add)
     __radd__ = __add__
     __sub__ = apply(sub)
@@ -64,6 +68,122 @@ def apply(op):
     __mod__ = apply(mod)
 ```
 
+I also defined some vector-related methods that I would use.
+
 ```python
-# TODO: finish writing this post
+    # still in class Vector
+
+    @property
+    def magnitude(self):
+        return hypot(*self)
+
+    def normalize(self):
+        return self / self.magnitude if self.magnitude else self
+
+    def limit(self, n):
+        return self.normalize() * n if self.magnitude ** 2 > n ** 2 else self
+```
+
+The `@property` is a decorator for the magnitude function that turns it into a property. So instead of calling `.magnitude()` you can just access `.magnitude` which would invoke the function.
+
+Finally, I added a function to average vectors.
+
+```python
+# outside of class Vector
+
+def average(vectors):
+    return sum(vectors) / len(vectors) if vectors else Vector()
+```
+
+Then, I created the `Boid` class.
+
+```python
+from math import atan2, degrees
+from vector import average, Vector
+
+class Boid:
+```
+
+First, I put a lot of properties in the class. I started out just using them as constants and not intending to change them, but later I added controls to change these values, which would affect all boids since they are static.
+
+```python
+    # still in class Boid
+
+    max_speed = 3
+    max_force = 0.03
+
+    separation_radius = 100
+    neighbor_radius = 200
+
+    separation_weight = 1
+    alignment_weight = 1
+    cohesion_weight = 1
+
+    speed_multiplier = 1
+
+    width = 40
+    height = 20
+    color = 255, 255, 255
+```
+
+The ~~constructor~~ initializer is pretty straightforward.
+
+```python
+    # still in class Boid
+    
+    def __init__(self, position, velocity=(0, 0)):
+    self.position = Vector(position)
+    self.velocity = Vector(velocity)
+```
+
+Then I added some useful methods for boids.
+
+```python
+    # still in class Boid
+    
+    @property
+    def angle(self):
+        return degrees(atan2(*reversed(self.velocity.coordinates)))
+
+    def distance(self, other):
+        return (other.position - self.position).magnitude
+```
+
+Here are the three behaviors.
+
+```python
+    # still in class Boid
+    
+    def separation(self, others):
+        return average([(self.position - other.position).normalize() / self.distance(other)
+                        for other in others if self.distance(other) < self.separation_radius])
+
+    def alignment(self, others):
+        return average([other.velocity for other in others
+                        if self.distance(other) < self.neighbor_radius]).limit(self.max_force)
+
+    def cohesion(self, others):
+        return average([other.position - self.position for other in others
+                        if self.distance(other) < self.neighbor_radius]).limit(self.max_force)
+```
+
+And here is the method to actually update the boid.
+
+```python
+    # still in class Boid
+
+    def update(self, flock):
+        others = list(filter(lambda boid: boid is not self, flock))
+        acceleration = (self.separation(others) * self.separation_weight +
+                        self.alignment(others) * self.alignment_weight +
+                        self.cohesion(others) * self.cohesion_weight)
+        velocity = (self.velocity + acceleration).limit(self.max_speed) * self.speed_multiplier
+        position = self.position + self.velocity
+        return Boid(position, velocity)
+```
+
+Notice that it returns a new `Boid`, instead of updating the current one. I actually at first wrote it so that the boids are mutable and they would be modified. But then, when going through the flock of boids to update each one, I wanted them to update simultaneously in each step. In other words, if there were 3 boids A, B, and C, when A updates, it uses the B and C values from the previous frame. But when B updates, it uses the A value from the next frame and the C value from the previous frame. And when C updates, it uses the A and B values from the next frame. So their behavior would depend on the order of updating. What I needed to do was make a copy of each boid so they could be updated without replacing their previous values. So I simply returned a new `Boid` in the `update` method each time. So each frame, the flock is replaced with a new flock of new boids.
+
+```python
+# TODO: finish this post
 ```
