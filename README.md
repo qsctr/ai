@@ -27,3 +27,5 @@ https://qsctr.github.io/ai
 [Semester 1 final project](https://github.com/qsctr/javascript-optimizer)
 
 [Language guess](https://github.com/qsctr/language-guess)
+
+[Flocking](https://github.com/qsctr/flocking)
