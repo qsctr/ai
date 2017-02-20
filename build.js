@@ -25,7 +25,7 @@ marked.setOptions({
 
 for (const md of fs.readdirSync('posts-md')) {
     const html = md.replace(/\.md$/, '.html');
-    fs.writeFileSync('posts-html/' + html, marked(fs.readFileSync('posts-md/' + md, 'utf-8')));
+    fs.writeFileSync('out-html/' + html, marked(fs.readFileSync('posts-md/' + md, 'utf-8')));
     console.log(md + ' -> ' + html);
 }
 
