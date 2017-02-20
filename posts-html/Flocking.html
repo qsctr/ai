@@ -1,0 +1,355 @@
+<h1 id="flocking">Flocking</h1>
+<p>See the source code on GitHub: <a href="https://github.com/qsctr/flocking">https://github.com/qsctr/flocking</a></p>
+<h2 id="2-6-2017">2/6/2017</h2>
+<p>Flocking is a simulation where there are boids in flocks. The boids move around and simulate flocking behavior in real life with things like birds and fish. Boid is short for bird-oid, but they are just generic objects that interact with other boids to form flocks. Each boid follows three behaviors: separation, alignment, and cohesion.</p>
+<ul>
+<li>Separation: A boid does not want to be too close to other boids.</li>
+<li>Alignment: A boid wants to move in the same direction as the others.</li>
+<li>Cohesion: A boid wants to stay close to the other boids.</li>
+</ul>
+<p>These behaviors produce velocity vectors representing the direction and speed the boid should go, and the vectors are added together to get the resultant vector, which is then added to the position of the boid to make it move. However, each boid does not take into account all other boids in the world, just the ones within a certain radius, like real life animals.</p>
+<p>You might think that separation and cohesion cancel each other out, since their vectors would point in opposite directions. But actually, the radii used for separation and cohesion could be different, so there is a difference between &quot;close&quot; and &quot;too close&quot;. Also, separation force increases the closer the boid is to some other boid, but cohesion has the same weight for all boids within the radius.</p>
+<p>We were required to do this project in Python, using a graphics library called pygame.</p>
+<p>First, I created a vector class, since I would be dealing with a lot of vectors.</p>
+<pre class="language-python"><code class="language-python"><span class="token keyword">from</span> math <span class="token keyword">import</span> hypot
+<span class="token keyword">from</span> operator <span class="token keyword">import</span> add<span class="token punctuation">,</span> mod<span class="token punctuation">,</span> mul<span class="token punctuation">,</span> sub<span class="token punctuation">,</span> truediv
+
+<span class="token keyword">class</span> <span class="token class-name">Vector</span><span class="token punctuation">:</span>
+
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> coordinates<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        self<span class="token punctuation">.</span>coordinates <span class="token operator">=</span> tuple<span class="token punctuation">(</span>coordinates<span class="token punctuation">)</span>
+</code></pre>
+<p>I wrapped coordinates in a tuple constructor call to allow passing in non-tuple iterables into the constructor function.</p>
+<p>I also made vectors themselves an iterable, because it would be nice to be able to iterate over each coordinate of the vector, like how you can iterate over each element in a tuple. So I just return the iterator for the <code>coordinates</code> tuple in the implementation for <code>__iter__</code>.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Vector</span>
+
+    <span class="token keyword">def</span> <span class="token function">__iter__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> iter<span class="token punctuation">(</span>self<span class="token punctuation">.</span>coordinates<span class="token punctuation">)</span>
+</code></pre>
+<p>I thought it would be useful to use the math operators for dealing with vectors, so I implemented the numeric operator methods. I wanted them to work with scalars (regular numbers) as well as other vectors and tuples, so I had to do different things depending on whether the other operand was iterable or not.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Vector</span>
+
+    <span class="token keyword">def</span> <span class="token function">__add__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> other<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> Vector<span class="token punctuation">(</span>map<span class="token punctuation">(</span>add<span class="token punctuation">,</span> self<span class="token punctuation">,</span> other <span class="token keyword">if</span> hasattr<span class="token punctuation">(</span>other<span class="token punctuation">,</span> <span class="token string">'__iter__'</span><span class="token punctuation">)</span> <span class="token keyword">else</span> <span class="token punctuation">(</span>other<span class="token punctuation">,</span> other<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<p>But then I realized that the code would be very repetitive for the other operations, so I defined a function to make those functions.</p>
+<pre class="language-python"><code class="language-python"><span class="token comment" spellcheck="true"># outside of class Vector</span>
+
+<span class="token keyword">def</span> <span class="token function">apply</span><span class="token punctuation">(</span>op<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> <span class="token keyword">lambda</span> self<span class="token punctuation">,</span> a<span class="token punctuation">:</span> Vector<span class="token punctuation">(</span>map<span class="token punctuation">(</span>op<span class="token punctuation">,</span> self<span class="token punctuation">,</span> a <span class="token keyword">if</span> hasattr<span class="token punctuation">(</span>a<span class="token punctuation">,</span> <span class="token string">'__iter__'</span><span class="token punctuation">)</span> <span class="token keyword">else</span> <span class="token punctuation">(</span>a<span class="token punctuation">,</span> a<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># inside class Vector</span>
+
+    __add__ <span class="token operator">=</span> apply<span class="token punctuation">(</span>add<span class="token punctuation">)</span>
+    __radd__ <span class="token operator">=</span> __add__
+    __sub__ <span class="token operator">=</span> apply<span class="token punctuation">(</span>sub<span class="token punctuation">)</span>
+    __mul__ <span class="token operator">=</span> apply<span class="token punctuation">(</span>mul<span class="token punctuation">)</span>
+    __truediv__ <span class="token operator">=</span> apply<span class="token punctuation">(</span>truediv<span class="token punctuation">)</span>
+    __mod__ <span class="token operator">=</span> apply<span class="token punctuation">(</span>mod<span class="token punctuation">)</span>
+</code></pre>
+<p>I also defined some vector-related methods that I would use.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Vector</span>
+
+    @property
+    <span class="token keyword">def</span> <span class="token function">magnitude</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> hypot<span class="token punctuation">(</span><span class="token operator">*</span>self<span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">normalize</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> self <span class="token operator">/</span> self<span class="token punctuation">.</span>magnitude <span class="token keyword">if</span> self<span class="token punctuation">.</span>magnitude <span class="token keyword">else</span> self
+
+    <span class="token keyword">def</span> <span class="token function">limit</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> n<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> self<span class="token punctuation">.</span>normalize<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> n <span class="token keyword">if</span> self<span class="token punctuation">.</span>magnitude <span class="token operator">**</span> <span class="token number">2</span> <span class="token operator">></span> n <span class="token operator">**</span> <span class="token number">2</span> <span class="token keyword">else</span> self
+</code></pre>
+<p>The <code>@property</code> is a decorator for the magnitude function that turns it into a property. So instead of calling <code>.magnitude()</code> you can just access <code>.magnitude</code> which would invoke the function.</p>
+<p>Finally, I added a function to average vectors.</p>
+<pre class="language-python"><code class="language-python"><span class="token comment" spellcheck="true"># outside of class Vector</span>
+
+<span class="token keyword">def</span> <span class="token function">average</span><span class="token punctuation">(</span>vectors<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> sum<span class="token punctuation">(</span>vectors<span class="token punctuation">)</span> <span class="token operator">/</span> len<span class="token punctuation">(</span>vectors<span class="token punctuation">)</span> <span class="token keyword">if</span> vectors <span class="token keyword">else</span> Vector<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<p>Then, I created the <code>Boid</code> class.</p>
+<pre class="language-python"><code class="language-python"><span class="token keyword">from</span> math <span class="token keyword">import</span> atan2<span class="token punctuation">,</span> degrees
+<span class="token keyword">from</span> vector <span class="token keyword">import</span> average<span class="token punctuation">,</span> Vector
+
+<span class="token keyword">class</span> <span class="token class-name">Boid</span><span class="token punctuation">:</span>
+</code></pre>
+<p>First, I put a lot of properties in the class. I started out just using them as constants and not intending to change them, but later I added controls to change these values, which would affect all boids since they are static.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Boid</span>
+
+    max_speed <span class="token operator">=</span> <span class="token number">3</span>
+    max_force <span class="token operator">=</span> <span class="token number">0.03</span>
+
+    separation_radius <span class="token operator">=</span> <span class="token number">100</span>
+    neighbor_radius <span class="token operator">=</span> <span class="token number">200</span>
+
+    separation_weight <span class="token operator">=</span> <span class="token number">1</span>
+    alignment_weight <span class="token operator">=</span> <span class="token number">1</span>
+    cohesion_weight <span class="token operator">=</span> <span class="token number">1</span>
+
+    speed_multiplier <span class="token operator">=</span> <span class="token number">1</span>
+
+    width <span class="token operator">=</span> <span class="token number">40</span>
+    height <span class="token operator">=</span> <span class="token number">20</span>
+    color <span class="token operator">=</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span>
+</code></pre>
+<p>The <del>constructor</del> initializer is pretty straightforward.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Boid</span>
+
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> position<span class="token punctuation">,</span> velocity<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    self<span class="token punctuation">.</span>position <span class="token operator">=</span> Vector<span class="token punctuation">(</span>position<span class="token punctuation">)</span>
+    self<span class="token punctuation">.</span>velocity <span class="token operator">=</span> Vector<span class="token punctuation">(</span>velocity<span class="token punctuation">)</span>
+</code></pre>
+<p>Then I added some useful methods for boids.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Boid</span>
+
+    @property
+    <span class="token keyword">def</span> <span class="token function">angle</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> degrees<span class="token punctuation">(</span>atan2<span class="token punctuation">(</span><span class="token operator">*</span>reversed<span class="token punctuation">(</span>self<span class="token punctuation">.</span>velocity<span class="token punctuation">.</span>coordinates<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">distance</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> other<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>other<span class="token punctuation">.</span>position <span class="token operator">-</span> self<span class="token punctuation">.</span>position<span class="token punctuation">)</span><span class="token punctuation">.</span>magnitude
+</code></pre>
+<p>Here are the three behaviors.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Boid</span>
+
+    <span class="token keyword">def</span> <span class="token function">separation</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> others<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> average<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>position <span class="token operator">-</span> other<span class="token punctuation">.</span>position<span class="token punctuation">)</span><span class="token punctuation">.</span>normalize<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> self<span class="token punctuation">.</span>distance<span class="token punctuation">(</span>other<span class="token punctuation">)</span>
+                        <span class="token keyword">for</span> other <span class="token keyword">in</span> others <span class="token keyword">if</span> self<span class="token punctuation">.</span>distance<span class="token punctuation">(</span>other<span class="token punctuation">)</span> <span class="token operator">&lt;</span> self<span class="token punctuation">.</span>separation_radius<span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">alignment</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> others<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> average<span class="token punctuation">(</span><span class="token punctuation">[</span>other<span class="token punctuation">.</span>velocity <span class="token keyword">for</span> other <span class="token keyword">in</span> others
+                        <span class="token keyword">if</span> self<span class="token punctuation">.</span>distance<span class="token punctuation">(</span>other<span class="token punctuation">)</span> <span class="token operator">&lt;</span> self<span class="token punctuation">.</span>neighbor_radius<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>limit<span class="token punctuation">(</span>self<span class="token punctuation">.</span>max_force<span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">cohesion</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> others<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> average<span class="token punctuation">(</span><span class="token punctuation">[</span>other<span class="token punctuation">.</span>position <span class="token operator">-</span> self<span class="token punctuation">.</span>position <span class="token keyword">for</span> other <span class="token keyword">in</span> others
+                        <span class="token keyword">if</span> self<span class="token punctuation">.</span>distance<span class="token punctuation">(</span>other<span class="token punctuation">)</span> <span class="token operator">&lt;</span> self<span class="token punctuation">.</span>neighbor_radius<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>limit<span class="token punctuation">(</span>self<span class="token punctuation">.</span>max_force<span class="token punctuation">)</span>
+</code></pre>
+<p>And here is the method to actually update the boid.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Boid</span>
+
+    <span class="token keyword">def</span> <span class="token function">update</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> flock<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        others <span class="token operator">=</span> list<span class="token punctuation">(</span>filter<span class="token punctuation">(</span><span class="token keyword">lambda</span> boid<span class="token punctuation">:</span> boid <span class="token keyword">is</span> <span class="token operator">not</span> self<span class="token punctuation">,</span> flock<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        acceleration <span class="token operator">=</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>separation<span class="token punctuation">(</span>others<span class="token punctuation">)</span> <span class="token operator">*</span> self<span class="token punctuation">.</span>separation_weight <span class="token operator">+</span>
+                        self<span class="token punctuation">.</span>alignment<span class="token punctuation">(</span>others<span class="token punctuation">)</span> <span class="token operator">*</span> self<span class="token punctuation">.</span>alignment_weight <span class="token operator">+</span>
+                        self<span class="token punctuation">.</span>cohesion<span class="token punctuation">(</span>others<span class="token punctuation">)</span> <span class="token operator">*</span> self<span class="token punctuation">.</span>cohesion_weight<span class="token punctuation">)</span>
+        velocity <span class="token operator">=</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>velocity <span class="token operator">+</span> acceleration<span class="token punctuation">)</span><span class="token punctuation">.</span>limit<span class="token punctuation">(</span>self<span class="token punctuation">.</span>max_speed<span class="token punctuation">)</span> <span class="token operator">*</span> self<span class="token punctuation">.</span>speed_multiplier
+        position <span class="token operator">=</span> self<span class="token punctuation">.</span>position <span class="token operator">+</span> self<span class="token punctuation">.</span>velocity
+        <span class="token keyword">return</span> Boid<span class="token punctuation">(</span>position<span class="token punctuation">,</span> velocity<span class="token punctuation">)</span>
+</code></pre>
+<p>Notice that it returns a new <code>Boid</code>, instead of updating the current one. I actually at first wrote it so that the boids are mutable and they would be modified. But then, when going through the flock of boids to update each one, I wanted them to update simultaneously in each step. In other words, if there were 3 boids A, B, and C, when A updates, it uses the B and C values from the previous frame. But when B updates, it uses the A value from the next frame and the C value from the previous frame. And when C updates, it uses the A and B values from the next frame. So their behavior would depend on the order of updating. What I needed to do was make a copy of each boid so they could be updated without replacing their previous values. So I simply returned a new <code>Boid</code> in the <code>update</code> method each time. So each frame, the flock is replaced with a new flock of new boids.</p>
+<h2 id="2-12-2017">2/12/2017</h2>
+<p>I made several changes to the code. I will talk about those first before explaining the <code>flocking</code> module.</p>
+<p>First, I moved the <code>angle</code> method to the <code>Vector</code> class, so I could get the angles of vectors other than Boid velocities.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># inside class Vector</span>
+
+    @property
+    <span class="token keyword">def</span> <span class="token function">angle</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> degrees<span class="token punctuation">(</span>atan2<span class="token punctuation">(</span><span class="token operator">*</span>reversed<span class="token punctuation">(</span>self<span class="token punctuation">.</span>coordinates<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<p>Also, I improved the <code>limit</code> method.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Vector</span>
+
+    <span class="token keyword">def</span> <span class="token function">limit</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> n<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> self<span class="token punctuation">.</span>normalize<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> n <span class="token keyword">if</span> self<span class="token punctuation">.</span>magnitude <span class="token operator">></span> n <span class="token keyword">else</span> self
+</code></pre>
+<p>I modified some of the boid properties to make the simulation look better.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># inside class Boid</span>
+
+    max_speed <span class="token operator">=</span> <span class="token number">4</span>
+    max_force <span class="token operator">=</span> <span class="token number">0.05</span>
+
+    separation_radius <span class="token operator">=</span> <span class="token number">100</span>
+    neighbor_radius <span class="token operator">=</span> <span class="token number">200</span>
+
+    separation_weight <span class="token operator">=</span> <span class="token number">5</span>
+    alignment_weight <span class="token operator">=</span> <span class="token number">1</span>
+    cohesion_weight <span class="token operator">=</span> <span class="token number">1</span>
+
+    speed_multiplier <span class="token operator">=</span> <span class="token number">1</span>
+
+    width <span class="token operator">=</span> <span class="token number">40</span>
+    height <span class="token operator">=</span> <span class="token number">20</span>
+    color <span class="token operator">=</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span>
+</code></pre>
+<p>I added mouse following to the boids. Since I just added it, it is probably still a little glitchy but it looks okay.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Boid</span>
+
+    <span class="token keyword">def</span> <span class="token function">mouse</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> mouse_pos<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> mouse_pos <span class="token keyword">is</span> None<span class="token punctuation">:</span>
+        <span class="token keyword">return</span> Vector<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    difference <span class="token operator">=</span> Vector<span class="token punctuation">(</span>mouse_pos<span class="token punctuation">)</span> <span class="token operator">-</span> self<span class="token punctuation">.</span>position
+    <span class="token keyword">return</span> difference<span class="token punctuation">.</span>normalize<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> max<span class="token punctuation">(</span>difference<span class="token punctuation">.</span>magnitude<span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">)</span>
+</code></pre>
+<p>And finally I updated <code>update</code>. It now takes the mouse position as a parameter to do the mouse following.</p>
+<pre class="language-python"><code class="language-python">    <span class="token comment" spellcheck="true"># still in class Boid</span>
+
+    <span class="token keyword">def</span> <span class="token function">update</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> flock<span class="token punctuation">,</span> mouse_pos<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    others <span class="token operator">=</span> list<span class="token punctuation">(</span>filter<span class="token punctuation">(</span><span class="token keyword">lambda</span> boid<span class="token punctuation">:</span> boid <span class="token keyword">is</span> <span class="token operator">not</span> self<span class="token punctuation">,</span> flock<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    velocity <span class="token operator">=</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>velocity <span class="token operator">+</span>
+                self<span class="token punctuation">.</span>separation<span class="token punctuation">(</span>others<span class="token punctuation">)</span> <span class="token operator">*</span> self<span class="token punctuation">.</span>separation_weight <span class="token operator">+</span>
+                self<span class="token punctuation">.</span>alignment<span class="token punctuation">(</span>others<span class="token punctuation">)</span> <span class="token operator">*</span> self<span class="token punctuation">.</span>alignment_weight <span class="token operator">+</span>
+                self<span class="token punctuation">.</span>cohesion<span class="token punctuation">(</span>others<span class="token punctuation">)</span> <span class="token operator">*</span> self<span class="token punctuation">.</span>cohesion_weight <span class="token operator">+</span>
+                self<span class="token punctuation">.</span>mouse<span class="token punctuation">(</span>mouse_pos<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">20</span>  <span class="token comment" spellcheck="true"># TODO: use configurable weight</span>
+                <span class="token punctuation">)</span><span class="token punctuation">.</span>limit<span class="token punctuation">(</span>self<span class="token punctuation">.</span>max_speed<span class="token punctuation">)</span> <span class="token operator">*</span> self<span class="token punctuation">.</span>speed_multiplier
+    position <span class="token operator">=</span> self<span class="token punctuation">.</span>position <span class="token operator">+</span> velocity
+    <span class="token keyword">return</span> Boid<span class="token punctuation">(</span>position<span class="token punctuation">,</span> velocity<span class="token punctuation">)</span>
+</code></pre>
+<p>Now I will explain the <code>flocking</code> module which is the main module to run the simulation.</p>
+<pre class="language-python"><code class="language-python"><span class="token keyword">from</span> boid3 <span class="token keyword">import</span> Boid
+<span class="token keyword">from</span> os <span class="token keyword">import</span> system
+<span class="token keyword">import</span> pygame
+<span class="token keyword">from</span> random <span class="token keyword">import</span> randrange
+<span class="token keyword">from</span> vector <span class="token keyword">import</span> average
+</code></pre>
+<p>Here are some constants.</p>
+<pre class="language-python"><code class="language-python">window_width <span class="token operator">=</span> <span class="token number">800</span>
+window_height <span class="token operator">=</span> <span class="token number">600</span>
+background_color <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span>
+icon_color <span class="token operator">=</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span>
+icon_size <span class="token operator">=</span> <span class="token number">256</span>
+fps <span class="token operator">=</span> <span class="token number">30</span>
+</code></pre>
+<p>Here are some global variables that will be used.</p>
+<pre class="language-python"><code class="language-python">flock <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+running <span class="token operator">=</span> <span class="token boolean">True</span>
+mouse_pos <span class="token operator">=</span> None
+mouse_on <span class="token operator">=</span> <span class="token boolean">False</span>
+</code></pre>
+<p>Here is the code that is needed to initialize pygame.</p>
+<pre class="language-python"><code class="language-python">pygame<span class="token punctuation">.</span>init<span class="token punctuation">(</span><span class="token punctuation">)</span>
+screen <span class="token operator">=</span> pygame<span class="token punctuation">.</span>display<span class="token punctuation">.</span>set_mode<span class="token punctuation">(</span><span class="token punctuation">(</span>window_width<span class="token punctuation">,</span> window_height<span class="token punctuation">)</span><span class="token punctuation">)</span>
+pygame<span class="token punctuation">.</span>display<span class="token punctuation">.</span>set_caption<span class="token punctuation">(</span><span class="token string">'Flocking'</span><span class="token punctuation">)</span>
+clock <span class="token operator">=</span> pygame<span class="token punctuation">.</span>time<span class="token punctuation">.</span>Clock<span class="token punctuation">(</span><span class="token punctuation">)</span>
+pygame<span class="token punctuation">.</span>key<span class="token punctuation">.</span>set_repeat<span class="token punctuation">(</span><span class="token number">500</span><span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">)</span>
+icon <span class="token operator">=</span> pygame<span class="token punctuation">.</span>Surface<span class="token punctuation">(</span><span class="token punctuation">(</span>icon_size<span class="token punctuation">,</span> icon_size<span class="token punctuation">)</span><span class="token punctuation">,</span> pygame<span class="token punctuation">.</span>SRCALPHA<span class="token punctuation">)</span><span class="token punctuation">.</span>convert_alpha<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<p>This function is run every frame, to handle events.</p>
+<pre class="language-python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">check_events</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> event <span class="token keyword">in</span> pygame<span class="token punctuation">.</span>event<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> event<span class="token punctuation">.</span>type <span class="token operator">==</span> pygame<span class="token punctuation">.</span>QUIT<span class="token punctuation">:</span>
+            <span class="token keyword">return</span> <span class="token boolean">False</span>
+        <span class="token keyword">elif</span> event<span class="token punctuation">.</span>type <span class="token operator">==</span> pygame<span class="token punctuation">.</span>MOUSEBUTTONDOWN<span class="token punctuation">:</span>
+            <span class="token keyword">if</span> event<span class="token punctuation">.</span>button <span class="token operator">==</span> <span class="token number">3</span><span class="token punctuation">:</span>  <span class="token comment" spellcheck="true"># right click</span>
+                <span class="token keyword">global</span> mouse_on
+                mouse_on <span class="token operator">=</span> <span class="token operator">not</span> mouse_on
+                update_console<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">elif</span> empty<span class="token punctuation">(</span>event<span class="token punctuation">.</span>pos<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                flock<span class="token punctuation">.</span>append<span class="token punctuation">(</span>Boid<span class="token punctuation">(</span>event<span class="token punctuation">.</span>pos<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                update_console<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">elif</span> event<span class="token punctuation">.</span>type <span class="token operator">==</span> pygame<span class="token punctuation">.</span>MOUSEMOTION<span class="token punctuation">:</span>
+            <span class="token keyword">global</span> mouse_pos
+            mouse_pos <span class="token operator">=</span> event<span class="token punctuation">.</span>pos
+        <span class="token keyword">elif</span> event<span class="token punctuation">.</span>type <span class="token operator">==</span> pygame<span class="token punctuation">.</span>KEYDOWN<span class="token punctuation">:</span>
+            <span class="token keyword">if</span> event<span class="token punctuation">.</span>key <span class="token operator">==</span> pygame<span class="token punctuation">.</span>K_SPACE<span class="token punctuation">:</span>
+                <span class="token keyword">global</span> running
+                running <span class="token operator">=</span> <span class="token operator">not</span> running
+                update_console<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">elif</span> event<span class="token punctuation">.</span>key <span class="token operator">==</span> pygame<span class="token punctuation">.</span>K_RETURN<span class="token punctuation">:</span>
+                <span class="token keyword">for</span> i <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                    pos <span class="token operator">=</span> randrange<span class="token punctuation">(</span>window_width<span class="token punctuation">)</span><span class="token punctuation">,</span> randrange<span class="token punctuation">(</span>window_height<span class="token punctuation">)</span>
+                    <span class="token keyword">if</span> empty<span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                        flock<span class="token punctuation">.</span>append<span class="token punctuation">(</span>Boid<span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                        update_console<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                        <span class="token keyword">break</span>
+            <span class="token keyword">elif</span> event<span class="token punctuation">.</span>key <span class="token operator">==</span> pygame<span class="token punctuation">.</span>K_BACKSPACE <span class="token operator">and</span> flock<span class="token punctuation">:</span>
+                flock<span class="token punctuation">.</span>pop<span class="token punctuation">(</span><span class="token punctuation">)</span>
+                update_console<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">elif</span> event<span class="token punctuation">.</span>key <span class="token keyword">in</span> keys<span class="token punctuation">:</span>
+                attr<span class="token punctuation">,</span> diff <span class="token operator">=</span> keys<span class="token punctuation">[</span>event<span class="token punctuation">.</span>key<span class="token punctuation">]</span>
+                prev <span class="token operator">=</span> getattr<span class="token punctuation">(</span>Boid<span class="token punctuation">,</span> attr<span class="token punctuation">)</span>
+                <span class="token keyword">if</span> event<span class="token punctuation">.</span>mod <span class="token keyword">in</span> <span class="token punctuation">[</span>pygame<span class="token punctuation">.</span>KMOD_LSHIFT<span class="token punctuation">,</span> pygame<span class="token punctuation">.</span>KMOD_RSHIFT<span class="token punctuation">]</span><span class="token punctuation">:</span>
+                    setattr<span class="token punctuation">(</span>Boid<span class="token punctuation">,</span> attr<span class="token punctuation">,</span> prev <span class="token operator">-</span> diff<span class="token punctuation">)</span>
+                <span class="token keyword">else</span><span class="token punctuation">:</span>
+                    setattr<span class="token punctuation">(</span>Boid<span class="token punctuation">,</span> attr<span class="token punctuation">,</span> prev <span class="token operator">+</span> diff<span class="token punctuation">)</span>
+                update_console<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token boolean">True</span>
+</code></pre>
+<p>It returns whether the program should continue. In other words, if it returns <code>False</code>, the program should end.</p>
+<p>This function checks if a given point is empty or not.</p>
+<pre class="language-python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">empty</span><span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> all<span class="token punctuation">(</span>boid<span class="token punctuation">.</span>position<span class="token punctuation">.</span>coordinates <span class="token operator">!=</span> pos <span class="token keyword">for</span> boid <span class="token keyword">in</span> flock<span class="token punctuation">)</span>
+</code></pre>
+<p>These are the keys that adjust the boid properties. The <code>check_events</code> function handles the actual updating, this is just a dictionary mapping from a key (literally) to the property name and how much it should change by. The default values of the properties are what they start as in the <code>Boid</code> class.</p>
+<pre class="language-python"><code class="language-python">keys <span class="token operator">=</span> <span class="token punctuation">{</span>
+    pygame<span class="token punctuation">.</span>K_1<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">'max_speed'</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    pygame<span class="token punctuation">.</span>K_2<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">'max_force'</span><span class="token punctuation">,</span> <span class="token number">0.01</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    pygame<span class="token punctuation">.</span>K_3<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">'separation_radius'</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    pygame<span class="token punctuation">.</span>K_4<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">'neighbor_radius'</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    pygame<span class="token punctuation">.</span>K_5<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">'separation_weight'</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    pygame<span class="token punctuation">.</span>K_6<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">'alignment_weight'</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    pygame<span class="token punctuation">.</span>K_7<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">'cohesion_weight'</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    pygame<span class="token punctuation">.</span>K_8<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">'speed_multiplier'</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    pygame<span class="token punctuation">.</span>K_9<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">'width'</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    pygame<span class="token punctuation">.</span>K_0<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">'height'</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>This function updates the console. It is very straightforward.</p>
+<pre class="language-python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">update_console</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    system<span class="token punctuation">(</span><span class="token string">'cls'</span><span class="token punctuation">)</span>  <span class="token comment" spellcheck="true"># clears the console (only works on Windows)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'Flocking'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'Left click to add a boid at the mouse pointer'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'Right click to toggle follow mouse'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'Press enter to add a boid at a random location'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'Press backspace to delete the last boid'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'Press space to pause/continue'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'Press the number to increase the corresponding value'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'Hold shift to decrease'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> key<span class="token punctuation">,</span> <span class="token punctuation">(</span>name<span class="token punctuation">,</span> _<span class="token punctuation">)</span> <span class="token keyword">in</span> keys<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">'[{pygame.key.name(key)}] {name} = {getattr(Boid, name):.2f}'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">'Running: {running}'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">'Follow mouse: {mouse_on}'</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">'Boid count: {len(flock)}'</span><span class="token punctuation">)</span>
+</code></pre>
+<p>The strings with <code>f</code> before them are (appropriately) called f-strings. They were introduced in Python 3.6 to do string interpolation. Basically, whatever is inside the <code>{}</code> is evaluated as an expression and then joined with the rest of the string. So <code>f&#39;1 + 1 = {1 + 1}.&#39;</code> would evaluate to <code>&#39;1 + 1 = 2.&#39;</code>.</p>
+<p>Here is a function to draw boids.</p>
+<pre class="language-python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">draw_boid</span><span class="token punctuation">(</span>boid<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    surface <span class="token operator">=</span> pygame<span class="token punctuation">.</span>Surface<span class="token punctuation">(</span><span class="token punctuation">(</span>boid<span class="token punctuation">.</span>width<span class="token punctuation">,</span> boid<span class="token punctuation">.</span>height<span class="token punctuation">)</span><span class="token punctuation">,</span> pygame<span class="token punctuation">.</span>SRCALPHA<span class="token punctuation">)</span><span class="token punctuation">.</span>convert_alpha<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    pygame<span class="token punctuation">.</span>draw<span class="token punctuation">.</span>polygon<span class="token punctuation">(</span>surface<span class="token punctuation">,</span> boid<span class="token punctuation">.</span>color<span class="token punctuation">,</span>
+                        <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>boid<span class="token punctuation">.</span>width<span class="token punctuation">,</span> boid<span class="token punctuation">.</span>height <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> boid<span class="token punctuation">.</span>height<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    rotated <span class="token operator">=</span> pygame<span class="token punctuation">.</span>transform<span class="token punctuation">.</span>rotate<span class="token punctuation">(</span>surface<span class="token punctuation">,</span> <span class="token operator">-</span>boid<span class="token punctuation">.</span>velocity<span class="token punctuation">.</span>angle<span class="token punctuation">)</span>
+    center <span class="token operator">=</span> boid<span class="token punctuation">.</span>position <span class="token operator">-</span> <span class="token punctuation">(</span>boid<span class="token punctuation">.</span>width <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">,</span> boid<span class="token punctuation">.</span>height <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>
+    screen<span class="token punctuation">.</span>blit<span class="token punctuation">(</span>rotated<span class="token punctuation">,</span> center<span class="token punctuation">.</span>coordinates<span class="token punctuation">)</span>
+</code></pre>
+<p>First the boid is drawn onto a square transparent surface. Then, the surface is rotated, and the rotated surface is blitted (drawn) onto the screen at the boid&#39;s coordinates. I could probably optimize this by not making a new surface for every single boid in every single frame, since the un-rotated surface is always the same given that <code>Boid.width</code> and <code>Boid.height</code> stay the same.</p>
+<p>This is a function which updates the icon. I made it so that the application icon is a tiny boid, and it would face in the same direction as the average directions of the boids in the simulation. So when the boids turn, the icon would turn too. Unfortuately, after the program runs for several minutes, the icon freezes and stops changing (on Windows at least). I don&#39;t know why this is happening. The code is quite similar to the <code>draw_boid</code> function above.</p>
+<pre class="language-python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">update_icon</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> flock<span class="token punctuation">:</span>
+        avg_angle <span class="token operator">=</span> average<span class="token punctuation">(</span><span class="token punctuation">[</span>boid<span class="token punctuation">.</span>velocity <span class="token keyword">for</span> boid <span class="token keyword">in</span> flock<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>angle
+        longer <span class="token operator">=</span> icon_size
+        shorter <span class="token operator">=</span> icon_size <span class="token operator">*</span> <span class="token punctuation">(</span>Boid<span class="token punctuation">.</span>height <span class="token operator">/</span> Boid<span class="token punctuation">.</span>width<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> Boid<span class="token punctuation">.</span>width <span class="token operator">></span> boid<span class="token punctuation">.</span>height<span class="token punctuation">:</span>
+            width <span class="token operator">=</span> longer
+            height <span class="token operator">=</span> shorter
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            width <span class="token operator">=</span> shorter
+            height <span class="token operator">=</span> longer
+        surface <span class="token operator">=</span> pygame<span class="token punctuation">.</span>Surface<span class="token punctuation">(</span><span class="token punctuation">(</span>icon_size<span class="token punctuation">,</span> icon_size<span class="token punctuation">)</span><span class="token punctuation">,</span> pygame<span class="token punctuation">.</span>SRCALPHA<span class="token punctuation">)</span><span class="token punctuation">.</span>convert_alpha<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        pygame<span class="token punctuation">.</span>draw<span class="token punctuation">.</span>polygon<span class="token punctuation">(</span>surface<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+            <span class="token punctuation">(</span>icon_size <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">-</span> width <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">,</span> icon_size <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">-</span> height <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">(</span>icon_size <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">+</span> width <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">128</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">(</span>icon_size <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">-</span> width <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">,</span> icon_size <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">+</span> height <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>
+        <span class="token punctuation">]</span><span class="token punctuation">)</span>
+        rotated <span class="token operator">=</span> pygame<span class="token punctuation">.</span>transform<span class="token punctuation">.</span>rotate<span class="token punctuation">(</span>surface<span class="token punctuation">,</span> <span class="token operator">-</span>avg_angle<span class="token punctuation">)</span>
+        pygame<span class="token punctuation">.</span>transform<span class="token punctuation">.</span>scale<span class="token punctuation">(</span>rotated<span class="token punctuation">,</span> <span class="token punctuation">(</span>icon_size<span class="token punctuation">,</span> icon_size<span class="token punctuation">)</span><span class="token punctuation">,</span> icon<span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        icon<span class="token punctuation">.</span>fill<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    pygame<span class="token punctuation">.</span>display<span class="token punctuation">.</span>set_icon<span class="token punctuation">(</span>icon<span class="token punctuation">)</span>
+</code></pre>
+<p>Now here is the main loop. But first, the console needs to be updated.</p>
+<pre class="language-python"><code class="language-python">update_console<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">while</span> check_events<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> running<span class="token punctuation">:</span>
+        screen<span class="token punctuation">.</span>fill<span class="token punctuation">(</span>background_color<span class="token punctuation">)</span>
+        flock <span class="token operator">=</span> <span class="token punctuation">[</span>boid<span class="token punctuation">.</span>update<span class="token punctuation">(</span>flock<span class="token punctuation">,</span> mouse_pos <span class="token keyword">if</span> mouse_on <span class="token keyword">else</span> None<span class="token punctuation">)</span> <span class="token keyword">for</span> boid <span class="token keyword">in</span> flock<span class="token punctuation">]</span>
+        <span class="token keyword">for</span> boid <span class="token keyword">in</span> flock<span class="token punctuation">:</span>
+            boid<span class="token punctuation">.</span>position <span class="token operator">%=</span> window_width<span class="token punctuation">,</span> window_height
+            draw_boid<span class="token punctuation">(</span>boid<span class="token punctuation">)</span>
+        pygame<span class="token punctuation">.</span>display<span class="token punctuation">.</span>update<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        update_icon<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    clock<span class="token punctuation">.</span>tick<span class="token punctuation">(</span>fps<span class="token punctuation">)</span>
+</code></pre>
+<p>You can see that I am updating the flock all at once, instead of each boid individually. Then I am using <code>%</code> on the boid&#39;s coordinates with the screen dimensions to wrap them around the edge of the screen.</p>
