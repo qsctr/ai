@@ -101,7 +101,7 @@ The data itself is from the [Wikipedia article on letter frequency](https://en.w
 
 Here is a Python (3) function that returns the name of the language, given a filename to read the text from.
 
-```Python
+```python
 def guess_language(filename):
     with open(filename, encoding='utf-8') as textfile, open('data.csv', encoding='utf-8') as data:
         (_, *letters), *rows = zip(*[line.split(',') for line in data.read().splitlines()])

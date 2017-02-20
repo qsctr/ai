@@ -1,0 +1,13 @@
+{
+  "name": "qsctr-ai-blog",
+  "version": "1.0.0",
+  "dependencies": {
+    "marked": "^0.3.6",
+    "prismjs": "^1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qsctr/ai.git"
+  },
+  "license": "MIT"
+}

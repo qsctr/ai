@@ -6,10 +6,10 @@ var commentList = document.querySelector('#comment-list');
 Array.prototype.slice.call(document.querySelector('#projects').children).forEach(function (project) {
     project.addEventListener('click', function () {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', window.location.pathname + 'posts/' + project.textContent + '.md?_=' + new Date().getTime());
+        xhr.open('GET', window.location.pathname + 'posts-html/' + project.textContent + '.html?_=' + new Date().getTime());
         xhr.onload = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                post.innerHTML = marked(xhr.responseText);
+                post.innerHTML = xhr.responseText;
                 loadComments(project.textContent);
                 location.hash = '';
                 location.hash = '#post';
@@ -53,19 +53,3 @@ function loadComments(postname) {
     }
     xhr.send(null);
 }
-
-marked.setOptions({
-    highlight: function (code, lang) {
-        setTimeout(function () {
-            Array.prototype.slice.call(document.querySelectorAll('pre > code')).forEach(function (elem) {
-                if (elem.className.indexOf('hljs') === -1) {
-                    elem.className += ' hljs';
-                }
-            });
-        }, 100);
-        if (lang === undefined) {
-            return code;
-        }
-        return hljs.highlight(lang, code).value;
-    }
-});
