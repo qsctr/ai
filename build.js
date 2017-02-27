@@ -8,7 +8,7 @@ const customRenderer = new marked.Renderer();
 customRenderer.code = function (code, lang) {
     return marked.Renderer.prototype.code.call(this, code, lang)
         .replace('<pre><code>', '<pre><code class="language-none">')
-        .replace(/<pre><code class="([^"]*)/, '<pre class="$1"><code class="$1');
+        .replace(/<pre><code class="([^"]*)">/, '<pre class="$1"><code class="$1">');
 }
 
 marked.setOptions({
