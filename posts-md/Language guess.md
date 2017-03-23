@@ -10,7 +10,7 @@ The goal is to analyze some text and determine the language it is written in. Hu
 
 I am storing the data in a CSV, or Comma Separated Values, file. Which, if you don't know what CSV is, is exactly what you would expect.
 
-```csv
+```
 Letter,English,French,German,Spanish,Portuguese,Esperanto,Italian,Turkish,Swedish,Polish,Dutch,Danish,Icelandic,Finnish,Czech
 a,8.167,7.636,6.516,11.525,14.634,12.117,11.745,12.920,9.383,10.503,7.486,6.025,10.110,12.217,8.421
 b,1.492,0.901,1.886,2.215,1.043,0.980,0.927,2.844,1.535,1.740,1.584,2.000,1.043,0.281,0.822
