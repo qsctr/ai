@@ -21,10 +21,13 @@ marked.setOptions({
     renderer: customRenderer
 });
 
-for (const md of fs.readdirSync('posts-md')) {
+const mds = fs.readdirSync('posts-md');
+const width = Math.max(...mds.map(md => md.length)) + 4;
+
+for (const md of mds) {
     const html = md.replace(/\.md$/, '.html');
     fs.writeFileSync('posts-html/' + html, marked(fs.readFileSync('posts-md/' + md, 'utf-8')));
-    console.log(md + ' -> ' + html);
+    console.log(md + ' '.repeat(width - md.length) + '-> ' + html);
 }
 
 console.log('All done.');
