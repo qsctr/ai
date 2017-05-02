@@ -1,5 +1,7 @@
 # Perceptron
 
+See the source code on GitHub: https://github.com/qsctr/simple-perceptron
+
 ## 3/23/2017
 
 This is the first project about machine learning. Perceptron is basically a function which takes some inputs and returns an output. The inputs are multiplied with weights and the sum is checked against a threshold. The goal of the Perceptron is to learn the weights and threshold from a training set of data.
