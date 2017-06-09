@@ -4,7 +4,7 @@ https://qsctr.github.io/ai
 
 # Links to AI projects on github
 
-[Game of Life](https://github.com/qsctr/game-of-life)
+[Conway's Game of Life](https://github.com/qsctr/game-of-life)
 
 [Wireworld](https://github.com/qsctr/wireworld)
 
@@ -29,3 +29,13 @@ https://qsctr.github.io/ai
 [Language guess](https://github.com/qsctr/language-guess)
 
 [Flocking](https://github.com/qsctr/flocking)
+
+[Perceptron](https://github.com/qsctr/simple-perceptron)
+
+[Perceptron double half moon](https://github.com/qsctr/perceptron-half-moon)
+
+[Character recognition](https://github.com/qsctr/character-recognition)
+
+[Neural network library](https://github.com/qsctr/neural-network)
+
+[Neural network program](https://github.com/qsctr/neural-network-classify)
