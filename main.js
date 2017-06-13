@@ -41,7 +41,7 @@ function loadComments(postname) {
                     nameEl.textContent = comment.data.name + ' at ' + new Date(comment.created_at) + ':';
                     commentList.appendChild(nameEl);
                     var commentEl = document.createElement('div');
-                    commentEl.innerHTML = marked(comment.data.comment);
+                    commentEl.innerHTML = comment.data.comment;
                     commentEl.className = 'comment';
                     commentList.appendChild(commentEl);
                 }
